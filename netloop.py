@@ -175,17 +175,14 @@ def render_live_dashboard(
     responder_flags: str,
     started_at: float,
     auto_stop_seconds: int,
-) -> None:
+) -> List[str]:
     elapsed = int(time.time() - started_at)
-    if supports_color():
-        # Clear and redraw a compact dashboard in-place.
-        sys.stdout.write("\033[2J\033[H")
     timer_text = f"{elapsed}s"
     if auto_stop_seconds > 0:
         remaining = max(0, auto_stop_seconds - elapsed)
         timer_text = f"{elapsed}s elapsed | {remaining}s to auto-stop"
 
-    lines = [
+    return [
         c("Netloop Live Overview", Color.BOLD),
         f"Mode: NTLMv2 capture/crack | Interface: {interface}",
         f"Responder Flags: {responder_flags}",
@@ -197,8 +194,28 @@ def render_live_dashboard(
         "",
         c("Press Ctrl-C to stop capture and start cracking.", Color.CYAN),
     ]
-    sys.stdout.write("\n".join(lines) + "\n")
+
+
+def draw_live_dashboard(lines: List[str], previous_line_count: int) -> int:
+    if not sys.stdout.isatty():
+        # Fallback when not attached to an interactive terminal.
+        print(" | ".join(line for line in lines if line.strip()))
+        return len(lines)
+
+    if previous_line_count > 0:
+        # Move to start of prior dashboard block.
+        sys.stdout.write(f"\033[{previous_line_count}F")
+
+    for line in lines:
+        # Clear current line then print replacement.
+        sys.stdout.write("\033[2K" + line + "\n")
+
+    if previous_line_count > len(lines):
+        for _ in range(previous_line_count - len(lines)):
+            sys.stdout.write("\033[2K\n")
+
     sys.stdout.flush()
+    return len(lines)
 
 
 def run_responder(
@@ -227,23 +244,27 @@ def run_responder(
     )
 
     start = time.time()
-    render_live_dashboard(stats, interface, responder_flags, start, auto_stop_seconds)
+    dashboard_lines = render_live_dashboard(stats, interface, responder_flags, start, auto_stop_seconds)
+    dashboard_height = draw_live_dashboard(dashboard_lines, previous_line_count=0)
+    auto_stop_triggered = False
     try:
         assert proc.stdout is not None
         for line in proc.stdout:
             line = line.rstrip("\n")
             parse_responder_stream_line(line, stats)
-            render_live_dashboard(stats, interface, responder_flags, start, auto_stop_seconds)
+            dashboard_lines = render_live_dashboard(
+                stats, interface, responder_flags, start, auto_stop_seconds
+            )
+            dashboard_height = draw_live_dashboard(dashboard_lines, previous_line_count=dashboard_height)
             if (
                 proc.poll() is None
                 and auto_stop_seconds > 0
                 and time.time() - start >= auto_stop_seconds
             ):
-                print(c("\nAuto-stop timer reached. Stopping responder.", Color.YELLOW))
+                auto_stop_triggered = True
                 proc.send_signal(signal.SIGINT)
     except KeyboardInterrupt:
         interrupted = True
-        print(c("\nStopping responder...", Color.YELLOW))
         proc.send_signal(signal.SIGINT)
     finally:
         try:
@@ -252,8 +273,12 @@ def run_responder(
             proc.kill()
             proc.wait()
 
-    # Move to a clean line after in-place dashboard rendering.
+    # Move to a clean line after in-place dashboard rendering and print stop reason.
     print()
+    if auto_stop_triggered:
+        print(c("Auto-stop timer reached. Stopping responder.", Color.YELLOW))
+    elif interrupted:
+        print(c("Stopped by user. Starting crack phase.", Color.YELLOW))
 
     if interrupted:
         return 130
