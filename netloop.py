@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 import re
+import select
 import shlex
 import shutil
 import signal
@@ -147,15 +148,52 @@ def parse_responder_stream_line(line: str, stats: Stats) -> None:
             ingest_hash(stats, parsed[0], parsed[1])
 
 
-def read_hashes_from_files(session_dir: Path, stats: Stats) -> None:
-    for hash_file in session_dir.glob(HASH_FILE_GLOB):
+def discover_responder_log_paths(session_dir: Path) -> List[Path]:
+    candidate_dirs = [
+        session_dir,
+        Path.cwd(),
+        Path("/usr/share/responder/logs"),
+        Path("/usr/local/share/responder/logs"),
+    ]
+    paths: List[Path] = []
+    for base in candidate_dirs:
+        session_log = base / "Responder-Session.log"
+        if session_log.exists():
+            paths.append(session_log)
+    return paths
+
+
+def poll_responder_logs(stats: Stats, offsets: Dict[Path, int], paths: List[Path]) -> None:
+    for path in paths:
         try:
-            for raw in hash_file.read_text(encoding="utf-8", errors="ignore").splitlines():
-                parsed = parse_hash_line(raw)
-                if parsed:
-                    ingest_hash(stats, parsed[0], parsed[1])
+            with path.open("r", encoding="utf-8", errors="ignore") as handle:
+                previous = offsets.get(path, 0)
+                handle.seek(previous)
+                for line in handle:
+                    parse_responder_stream_line(line.rstrip("\n"), stats)
+                offsets[path] = handle.tell()
         except OSError:
             continue
+
+
+def read_hashes_from_files(session_dir: Path, stats: Stats) -> None:
+    candidate_dirs = [
+        session_dir,
+        Path.cwd(),
+        Path("/usr/share/responder/logs"),
+        Path("/usr/local/share/responder/logs"),
+    ]
+    for base in candidate_dirs:
+        if not base.exists():
+            continue
+        for hash_file in base.glob(HASH_FILE_GLOB):
+            try:
+                for raw in hash_file.read_text(encoding="utf-8", errors="ignore").splitlines():
+                    parsed = parse_hash_line(raw)
+                    if parsed:
+                        ingest_hash(stats, parsed[0], parsed[1])
+            except OSError:
+                continue
 
 
 def render_stats(stats: Stats, live: bool = False) -> None:
@@ -244,25 +282,57 @@ def run_responder(
     )
 
     start = time.time()
+    responder_logs = discover_responder_log_paths(session_dir)
+    log_offsets: Dict[Path, int] = {}
+    for log_path in responder_logs:
+        try:
+            log_offsets[log_path] = log_path.stat().st_size
+        except OSError:
+            log_offsets[log_path] = 0
+
     dashboard_lines = render_live_dashboard(stats, interface, responder_flags, start, auto_stop_seconds)
     dashboard_height = draw_live_dashboard(dashboard_lines, previous_line_count=0)
     auto_stop_triggered = False
+    last_refresh = 0.0
     try:
         assert proc.stdout is not None
-        for line in proc.stdout:
-            line = line.rstrip("\n")
-            parse_responder_stream_line(line, stats)
-            dashboard_lines = render_live_dashboard(
-                stats, interface, responder_flags, start, auto_stop_seconds
-            )
-            dashboard_height = draw_live_dashboard(dashboard_lines, previous_line_count=dashboard_height)
+        fd = proc.stdout.fileno()
+        while True:
+            ready, _, _ = select.select([fd], [], [], 0.25)
+            if ready:
+                line = proc.stdout.readline()
+                if line:
+                    parse_responder_stream_line(line.rstrip("\n"), stats)
+
+            poll_responder_logs(stats, log_offsets, responder_logs)
+
+            # Keep the live dashboard moving even with quiet/buffered output.
+            now = time.time()
+            if now - last_refresh >= 1.0:
+                dashboard_lines = render_live_dashboard(
+                    stats, interface, responder_flags, start, auto_stop_seconds
+                )
+                dashboard_height = draw_live_dashboard(
+                    dashboard_lines, previous_line_count=dashboard_height
+                )
+                last_refresh = now
+
             if (
                 proc.poll() is None
                 and auto_stop_seconds > 0
-                and time.time() - start >= auto_stop_seconds
+                and now - start >= auto_stop_seconds
             ):
                 auto_stop_triggered = True
                 proc.send_signal(signal.SIGINT)
+
+            if proc.poll() is not None:
+                # Drain remaining buffered stdout, then exit.
+                remainder = proc.stdout.readline()
+                while remainder:
+                    parse_responder_stream_line(remainder.rstrip("\n"), stats)
+                    remainder = proc.stdout.readline()
+                poll_responder_logs(stats, log_offsets, responder_logs)
+                break
     except KeyboardInterrupt:
         interrupted = True
         proc.send_signal(signal.SIGINT)
