@@ -91,6 +91,17 @@ def sanitize_for_filename(value: str) -> str:
     return re.sub(r"[^A-Za-z0-9._-]", "_", value)
 
 
+def format_usernames(users: Set[str], max_display: int = 6) -> str:
+    if not users:
+        return "none"
+    sorted_users = sorted(users)
+    if len(sorted_users) <= max_display:
+        return ", ".join(sorted_users)
+    shown = ", ".join(sorted_users[:max_display])
+    remaining = len(sorted_users) - max_display
+    return f"{shown}, +{remaining} more"
+
+
 def build_progress_bar(percent: float, width: int = 24) -> str:
     bounded = max(0.0, min(100.0, percent))
     fill = int((bounded / 100.0) * width)
@@ -218,7 +229,8 @@ def ingest_hash(stats: Stats, user: str, full_hash: str) -> None:
 
 def parse_responder_stream_line(line: str, stats: Stats) -> None:
     clean_line = strip_ansi(line)
-    if "Poisoned answer sent" in clean_line:
+    lower_line = clean_line.lower()
+    if "poisoned" in lower_line and ("answer sent" in lower_line or "response sent" in lower_line):
         stats.poisoned_messages += 1
 
     if "NTLMv2-SSP Hash" in clean_line:
@@ -258,6 +270,18 @@ def poll_responder_logs(stats: Stats, offsets: Dict[Path, int], paths: List[Path
                 offsets[path] = handle.tell()
         except OSError:
             continue
+
+
+def refresh_responder_log_paths(
+    session_dir: Path, paths: List[Path], offsets: Dict[Path, int]
+) -> Tuple[List[Path], Dict[Path, int]]:
+    discovered = discover_responder_log_paths(session_dir)
+    for path in discovered:
+        if path not in paths:
+            paths.append(path)
+            # Parse from beginning for newly discovered files.
+            offsets[path] = 0
+    return paths, offsets
 
 
 def read_hashes_from_files(session_dir: Path, stats: Stats) -> None:
@@ -468,6 +492,7 @@ def render_live_dashboard(
     queue_depth = len(crack_state.pending_users) + (1 if crack_state.active_user else 0)
     recent_cracks = crack_state.cracked_lines[-2:]
     recent_lines = [f"  {line}" for line in recent_cracks] if recent_cracks else ["  none yet"]
+    users_line = format_usernames(stats.unique_users)
 
     return [
         c("Netloop Live Overview", Color.BOLD),
@@ -478,6 +503,7 @@ def render_live_dashboard(
         f"Poisoned messages: {c(str(stats.poisoned_messages), Color.YELLOW)}",
         f"NTLMv2 hashes captured: {c(str(stats.ntlmv2_hash_lines), Color.GREEN)}",
         f"Unique users captured: {c(str(len(stats.unique_users)), Color.BLUE)}",
+        f"Unique usernames: {users_line}",
         "",
         cracking_line,
         (
@@ -576,6 +602,9 @@ def run_capture_and_crack(
                         if line:
                             parse_responder_stream_line(line.rstrip("\n"), stats)
                 poll_responder_logs(stats, log_offsets, responder_logs)
+                responder_logs, log_offsets = refresh_responder_log_paths(
+                    session_dir, responder_logs, log_offsets
+                )
 
                 enqueue_new_hashes_for_cracking(stats, crack_state)
 
@@ -766,6 +795,7 @@ def main() -> int:
     print(f"- Poisoned messages: {stats.poisoned_messages}")
     print(f"- NTLMv2 hashes captured: {stats.ntlmv2_hash_lines}")
     print(f"- Unique users with captured hashes: {len(stats.unique_users)}")
+    print(f"- Unique usernames: {', '.join(sorted(stats.unique_users)) if stats.unique_users else 'none'}")
     print(f"- Hash input file (one per user): {unique_hash_file}")
     print(f"- Hashcat jobs completed: {crack_state.completed_jobs}")
     print(f"- Hashcat job errors: {crack_state.hashcat_errors}")
