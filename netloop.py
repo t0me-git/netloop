@@ -94,6 +94,10 @@ def verbose_print(enabled: bool, line: str) -> None:
         print(line, flush=True)
 
 
+def canonical_user(user: str) -> str:
+    return user.strip().lower()
+
+
 def sanitize_for_filename(value: str) -> str:
     return re.sub(r"[^A-Za-z0-9._-]", "_", value)
 
@@ -181,13 +185,13 @@ def load_cracked_users() -> Set[str]:
     users = ntlmv2_cfg.get("cracked_users", [])
     if not isinstance(users, list):
         return set()
-    return {str(user) for user in users if str(user).strip()}
+    return {canonical_user(str(user)) for user in users if str(user).strip()}
 
 
 def save_cracked_users(cracked_users: Set[str]) -> None:
     cfg = load_config()
     ntlmv2_cfg = cfg.get("ntlmv2", {})
-    ntlmv2_cfg["cracked_users"] = sorted(cracked_users)
+    ntlmv2_cfg["cracked_users"] = sorted(canonical_user(user) for user in cracked_users if user)
     cfg["ntlmv2"] = ntlmv2_cfg
     save_config(cfg)
 
@@ -283,9 +287,21 @@ def discover_responder_log_paths(session_dir: Path) -> List[Path]:
     ]
     paths: List[Path] = []
     for base in candidate_dirs:
-        session_log = base / "Responder-Session.log"
-        if session_log.exists():
-            paths.append(session_log)
+        if not base.exists():
+            continue
+        for pattern in ("*Session.log", "*.log"):
+            for log_file in sorted(base.glob(pattern)):
+                if log_file.is_file():
+                    paths.append(log_file)
+    # Stable de-dup preserving order.
+    deduped: List[Path] = []
+    seen: Set[Path] = set()
+    for path in paths:
+        if path in seen:
+            continue
+        seen.add(path)
+        deduped.append(path)
+    paths = deduped
     return paths
 
 
@@ -309,8 +325,11 @@ def refresh_responder_log_paths(
     for path in discovered:
         if path not in paths:
             paths.append(path)
-            # Parse from beginning for newly discovered files.
-            offsets[path] = 0
+            # Skip historical backlog for late-discovered logs.
+            try:
+                offsets[path] = path.stat().st_size
+            except OSError:
+                offsets[path] = 0
     return paths, offsets
 
 
@@ -336,10 +355,11 @@ def read_hashes_from_files(session_dir: Path, stats: Stats) -> None:
 
 def enqueue_new_hashes_for_cracking(stats: Stats, crack_state: CrackState) -> None:
     for user in sorted(stats.user_to_hash.keys()):
-        if user in crack_state.cracked_users:
+        canon = canonical_user(user)
+        if canon in crack_state.cracked_users:
             crack_state.processed_users.add(user)
-            if user not in crack_state.previously_cracked_seen_this_run:
-                crack_state.previously_cracked_seen_this_run.add(user)
+            if canon not in crack_state.previously_cracked_seen_this_run:
+                crack_state.previously_cracked_seen_this_run.add(canon)
                 crack_state.cracked_lines.append(
                     f"{user}::PREVIOUSLY_CRACKED:already-cracked-in-earlier-run"
                 )
@@ -388,6 +408,7 @@ def start_next_hashcat_job(
     cmd = [
         hashcat_path,
         *hashcat_flags,
+        "--quiet",
         "--session",
         f"{session_name_prefix}-{safe_user}-{int(time.time())}",
         "--restore-disable",
@@ -404,6 +425,7 @@ def start_next_hashcat_job(
         cmd,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
+        stdin=subprocess.DEVNULL,
         text=True,
         bufsize=1,
     )
@@ -487,7 +509,7 @@ def finalize_hashcat_job(
         if "::" in clean_row:
             cracked_user = clean_row.split("::", 1)[0].strip()
             if cracked_user:
-                crack_state.cracked_users.add(cracked_user)
+                crack_state.cracked_users.add(canonical_user(cracked_user))
 
     crack_state.completed_jobs += 1
     crack_state.processed_users.add(user)
@@ -624,6 +646,11 @@ def run_capture_and_crack(
     parsed_hashcat_flags = shlex.split(hashcat_flags)
     crack_state = CrackState(cracked_users=set(persisted_cracked_users))
     responder_logs = discover_responder_log_paths(session_dir)
+    if verbose and responder_logs:
+        for path in responder_logs:
+            print(c(f"[verbose] monitoring responder log: {path}", Color.CYAN))
+    elif verbose:
+        print(c("[verbose] no responder logs discovered yet; will keep scanning.", Color.CYAN))
     log_offsets: Dict[Path, int] = {}
     for log_path in responder_logs:
         try:
@@ -851,7 +878,9 @@ def main() -> int:
     unique_hash_file = write_unique_hash_file(session_dir, stats.user_to_hash)
     cracked_display = format_cracked_rows(crack_state.cracked_lines)
     crack_rc = 0 if crack_state.hashcat_errors == 0 else 1
-    cracked_users_this_capture = sorted(stats.unique_users.intersection(crack_state.cracked_users))
+    cracked_users_this_capture = sorted(
+        user for user in stats.unique_users if canonical_user(user) in crack_state.cracked_users
+    )
 
     print("\n" + c("Overview", Color.BOLD))
     print(f"- Poisoned messages: {stats.poisoned_messages}")
