@@ -44,6 +44,13 @@ def supports_color() -> bool:
     return sys.stdout.isatty() and os.environ.get("TERM", "") != "dumb"
 
 
+def supports_inplace_redraw() -> bool:
+    # Keep redraw behavior available in typical terminals (including sudo/root shells).
+    # TERM-based detection is more reliable here than relying only on isatty().
+    term = os.environ.get("TERM", "")
+    return term not in ("", "dumb")
+
+
 def c(text: str, color: str) -> str:
     if not supports_color():
         return text
@@ -235,14 +242,14 @@ def render_live_dashboard(
 
 
 def draw_live_dashboard(lines: List[str], previous_line_count: int) -> int:
-    if not sys.stdout.isatty():
+    if not supports_inplace_redraw():
         # Fallback when not attached to an interactive terminal.
         print(" | ".join(line for line in lines if line.strip()))
         return len(lines)
 
     if previous_line_count > 0:
-        # Move to start of prior dashboard block.
-        sys.stdout.write(f"\033[{previous_line_count}F")
+        # Move up to start of prior dashboard block (widely-supported ANSI sequence).
+        sys.stdout.write(f"\033[{previous_line_count}A\r")
 
     for line in lines:
         # Clear current line then print replacement.
