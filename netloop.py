@@ -59,7 +59,8 @@ def c(text: str, color: str) -> str:
 
 @dataclass
 class Stats:
-    poisoned_messages: int = 0
+    poisoned_responses: int = 0
+    captured_auth_events: int = 0
     ntlmv2_hash_lines: int = 0
     unique_users: Set[str] = field(default_factory=set)
     user_to_hash: Dict[str, str] = field(default_factory=dict)
@@ -265,7 +266,9 @@ def parse_responder_stream_line(line: str, stats: Stats) -> None:
     clean_line = strip_ansi(line)
     lower_line = clean_line.lower()
     if "poisoned" in lower_line and ("answer sent" in lower_line or "response sent" in lower_line):
-        stats.poisoned_messages += 1
+        stats.poisoned_responses += 1
+    elif "ntlmv2-ssp client" in lower_line:
+        stats.captured_auth_events += 1
 
     if "NTLMv2-SSP Hash" in clean_line:
         # Format example:
@@ -310,6 +313,13 @@ def poll_responder_logs(stats: Stats, offsets: Dict[Path, int], paths: List[Path
         try:
             with path.open("r", encoding="utf-8", errors="ignore") as handle:
                 previous = offsets.get(path, 0)
+                # If the log was rotated/truncated, restart from beginning.
+                try:
+                    current_size = path.stat().st_size
+                except OSError:
+                    current_size = previous
+                if previous > current_size:
+                    previous = 0
                 handle.seek(previous)
                 for line in handle:
                     parse_responder_stream_line(line.rstrip("\n"), stats)
@@ -526,9 +536,10 @@ def render_stats(stats: Stats, live: bool = False) -> None:
     prefix = "LIVE" if live else "FINAL"
     status = (
         f"{c(prefix, Color.CYAN)} | "
-        f"Poisoned: {c(str(stats.poisoned_messages), Color.YELLOW)} | "
+        f"Poisoned Responses: {c(str(stats.poisoned_responses), Color.YELLOW)} | "
+        f"Auth Events: {c(str(stats.captured_auth_events), Color.BLUE)} | "
         f"NTLMv2 Captured: {c(str(stats.ntlmv2_hash_lines), Color.GREEN)} | "
-        f"Unique Users: {c(str(len(stats.unique_users)), Color.BLUE)}"
+        f"Unique Users: {c(str(len(stats.unique_users)), Color.CYAN)}"
     )
     print(status)
 
@@ -568,9 +579,10 @@ def render_live_dashboard(
         f"Responder Flags: {responder_flags}",
         f"Runtime: {timer_text}",
         "",
-        f"Poisoned messages: {c(str(stats.poisoned_messages), Color.YELLOW)}",
+        f"Poisoned responses: {c(str(stats.poisoned_responses), Color.YELLOW)}",
+        f"Captured auth events: {c(str(stats.captured_auth_events), Color.BLUE)}",
         f"NTLMv2 hashes captured: {c(str(stats.ntlmv2_hash_lines), Color.GREEN)}",
-        f"Unique users captured: {c(str(len(stats.unique_users)), Color.BLUE)}",
+        f"Unique users captured: {c(str(len(stats.unique_users)), Color.CYAN)}",
         f"Unique usernames: {users_line}",
         "",
         cracking_line,
@@ -658,13 +670,10 @@ def run_capture_and_crack(
         except OSError:
             log_offsets[log_path] = 0
 
-    dashboard_lines: List[str] = []
-    dashboard_height = 0
-    if not verbose:
-        dashboard_lines = render_live_dashboard(
-            stats, crack_state, interface, responder_flags, start, auto_stop_seconds
-        )
-        dashboard_height = draw_live_dashboard(dashboard_lines, previous_line_count=0)
+    dashboard_lines: List[str] = render_live_dashboard(
+        stats, crack_state, interface, responder_flags, start, auto_stop_seconds
+    )
+    dashboard_height = draw_live_dashboard(dashboard_lines, previous_line_count=0)
     auto_stop_triggered = False
     last_refresh = 0.0
     responder_stop_requested = False
@@ -714,7 +723,7 @@ def run_capture_and_crack(
                             print(c(f"Warning: wordlist not found: {wordlist}. Capture only mode.", Color.YELLOW))
 
                 now = time.time()
-                if not verbose and now - last_refresh >= 1.0:
+                if now - last_refresh >= 1.0:
                     dashboard_lines = render_live_dashboard(
                         stats, crack_state, interface, responder_flags, start, auto_stop_seconds
                     )
@@ -883,7 +892,8 @@ def main() -> int:
     )
 
     print("\n" + c("Overview", Color.BOLD))
-    print(f"- Poisoned messages: {stats.poisoned_messages}")
+    print(f"- Poisoned responses: {stats.poisoned_responses}")
+    print(f"- Captured auth events: {stats.captured_auth_events}")
     print(f"- NTLMv2 hashes captured: {stats.ntlmv2_hash_lines}")
     print(f"- Unique users with captured hashes: {len(stats.unique_users)}")
     print(f"- Unique usernames: {', '.join(sorted(stats.unique_users)) if stats.unique_users else 'none'}")
