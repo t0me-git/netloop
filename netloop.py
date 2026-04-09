@@ -99,13 +99,6 @@ def canonical_user(user: str) -> str:
     return user.strip().lower()
 
 
-def normalize_responder_flags(flags: str, disable_responder_verbose: bool = False) -> str:
-    parts = shlex.split(flags)
-    if disable_responder_verbose:
-        parts = [p for p in parts if p not in ("-v", "--verbose")]
-    return " ".join(parts).strip()
-
-
 def sanitize_for_filename(value: str) -> str:
     return re.sub(r"[^A-Za-z0-9._-]", "_", value)
 
@@ -177,8 +170,15 @@ def humanize_hps(rate_hps: float) -> str:
     return f"{rate_hps / 1_000_000_000:.2f} GH/s"
 
 
+def get_config_path() -> Path:
+    # Prefer project-local config when present so prompts match what users see in-repo.
+    if LOCAL_CONFIG_PATH.exists():
+        return LOCAL_CONFIG_PATH
+    return HOME_CONFIG_PATH
+
+
 def load_config() -> dict:
-    config_path = HOME_CONFIG_PATH if HOME_CONFIG_PATH.exists() else LOCAL_CONFIG_PATH
+    config_path = get_config_path()
     if not config_path.exists():
         return {}
     try:
@@ -205,12 +205,14 @@ def save_cracked_users(cracked_users: Set[str]) -> None:
 
 
 def save_config(config: dict) -> None:
+    config_path = get_config_path()
     try:
-        HOME_CONFIG_PATH.write_text(json.dumps(config, indent=2), encoding="utf-8")
+        config_path.write_text(json.dumps(config, indent=2), encoding="utf-8")
         return
     except OSError:
-        # Fall back to local config when home is not writable.
-        LOCAL_CONFIG_PATH.write_text(json.dumps(config, indent=2), encoding="utf-8")
+        # Fall back to whichever path is not currently selected.
+        fallback = LOCAL_CONFIG_PATH if config_path != LOCAL_CONFIG_PATH else HOME_CONFIG_PATH
+        fallback.write_text(json.dumps(config, indent=2), encoding="utf-8")
 
 
 def prompt_with_default(prompt: str, default: str) -> str:
@@ -687,19 +689,11 @@ def run_capture_and_crack(
     hashcat_path = shutil.which("hashcat")
     hashcat_missing_warned = False
 
-    responder_flags = normalize_responder_flags(
-        responder_flags,
-        disable_responder_verbose=verbose,
-    )
-    if not responder_flags:
-        responder_flags = DEFAULT_RESPONDER_FLAGS
-
     cmd = [responder_path, "-I", interface] + shlex.split(responder_flags)
     print(c(f"Starting responder: {' '.join(cmd)}", Color.CYAN))
     if verbose:
         print(c("Verbose mode enabled: streaming responder/hashcat output.", Color.YELLOW))
         print(c("Verbose mode display: raw logs + periodic status snapshots.", Color.YELLOW))
-        print(c("Responder -v is disabled in netloop verbose mode.", Color.YELLOW))
 
     interrupted = False
     proc = subprocess.Popen(
@@ -936,6 +930,10 @@ def main() -> int:
         return 2
 
     interface, responder_flags, wordlist, hashcat_flags = resolve_inputs(parsed_args)
+    if parsed_args.verbose:
+        print(c(f"[verbose] active config file: {get_config_path()}", Color.CYAN))
+        print(c(f"[verbose] responder flags in use: {responder_flags}", Color.CYAN))
+        print(c(f"[verbose] hashcat flags in use: {hashcat_flags}", Color.CYAN))
     persisted_cracked_users = load_cracked_users()
     session_stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     session_dir = Path.cwd() / "netloop_runs" / session_stamp
