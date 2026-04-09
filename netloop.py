@@ -265,7 +265,14 @@ def ingest_hash(stats: Stats, user: str, full_hash: str) -> None:
 def parse_responder_stream_line(line: str, stats: Stats) -> None:
     clean_line = strip_ansi(line)
     lower_line = clean_line.lower()
-    if "poisoned" in lower_line and ("answer sent" in lower_line or "response sent" in lower_line):
+    if "poison" in lower_line and (
+        "answer sent" in lower_line
+        or "response sent" in lower_line
+        or "[llmnr]" in lower_line
+        or "[mdns]" in lower_line
+        or "[nbt-ns]" in lower_line
+        or "[dns]" in lower_line
+    ):
         stats.poisoned_responses += 1
     elif "ntlmv2-ssp client" in lower_line:
         stats.captured_auth_events += 1
@@ -308,6 +315,30 @@ def discover_responder_log_paths(session_dir: Path) -> List[Path]:
     return paths
 
 
+def discover_hash_file_paths(session_dir: Path) -> List[Path]:
+    candidate_dirs = [
+        session_dir,
+        Path.cwd(),
+        Path("/usr/share/responder/logs"),
+        Path("/usr/local/share/responder/logs"),
+    ]
+    paths: List[Path] = []
+    for base in candidate_dirs:
+        if not base.exists():
+            continue
+        for hash_file in sorted(base.glob(HASH_FILE_GLOB)):
+            if hash_file.is_file():
+                paths.append(hash_file)
+    deduped: List[Path] = []
+    seen: Set[Path] = set()
+    for path in paths:
+        if path in seen:
+            continue
+        seen.add(path)
+        deduped.append(path)
+    return deduped
+
+
 def poll_responder_logs(stats: Stats, offsets: Dict[Path, int], paths: List[Path]) -> None:
     for path in paths:
         try:
@@ -328,6 +359,27 @@ def poll_responder_logs(stats: Stats, offsets: Dict[Path, int], paths: List[Path
             continue
 
 
+def poll_hash_files(stats: Stats, offsets: Dict[Path, int], paths: List[Path]) -> None:
+    for path in paths:
+        try:
+            with path.open("r", encoding="utf-8", errors="ignore") as handle:
+                previous = offsets.get(path, 0)
+                try:
+                    current_size = path.stat().st_size
+                except OSError:
+                    current_size = previous
+                if previous > current_size:
+                    previous = 0
+                handle.seek(previous)
+                for line in handle:
+                    parsed = parse_hash_line(line.rstrip("\n"))
+                    if parsed:
+                        ingest_hash(stats, parsed[0], parsed[1])
+                offsets[path] = handle.tell()
+        except OSError:
+            continue
+
+
 def refresh_responder_log_paths(
     session_dir: Path, paths: List[Path], offsets: Dict[Path, int]
 ) -> Tuple[List[Path], Dict[Path, int]]:
@@ -343,24 +395,18 @@ def refresh_responder_log_paths(
     return paths, offsets
 
 
-def read_hashes_from_files(session_dir: Path, stats: Stats) -> None:
-    candidate_dirs = [
-        session_dir,
-        Path.cwd(),
-        Path("/usr/share/responder/logs"),
-        Path("/usr/local/share/responder/logs"),
-    ]
-    for base in candidate_dirs:
-        if not base.exists():
-            continue
-        for hash_file in base.glob(HASH_FILE_GLOB):
+def refresh_hash_file_paths(
+    session_dir: Path, paths: List[Path], offsets: Dict[Path, int]
+) -> Tuple[List[Path], Dict[Path, int]]:
+    discovered = discover_hash_file_paths(session_dir)
+    for path in discovered:
+        if path not in paths:
+            paths.append(path)
             try:
-                for raw in hash_file.read_text(encoding="utf-8", errors="ignore").splitlines():
-                    parsed = parse_hash_line(raw)
-                    if parsed:
-                        ingest_hash(stats, parsed[0], parsed[1])
+                offsets[path] = path.stat().st_size
             except OSError:
-                continue
+                offsets[path] = 0
+    return paths, offsets
 
 
 def enqueue_new_hashes_for_cracking(stats: Stats, crack_state: CrackState) -> None:
@@ -642,6 +688,7 @@ def run_capture_and_crack(
     print(c(f"Starting responder: {' '.join(cmd)}", Color.CYAN))
     if verbose:
         print(c("Verbose mode enabled: streaming responder/hashcat output.", Color.YELLOW))
+        print(c("Verbose mode display: raw logs + periodic status snapshots.", Color.YELLOW))
 
     interrupted = False
     proc = subprocess.Popen(
@@ -670,10 +717,21 @@ def run_capture_and_crack(
         except OSError:
             log_offsets[log_path] = 0
 
+    hash_paths = discover_hash_file_paths(session_dir)
+    hash_offsets: Dict[Path, int] = {}
+    for hash_path in hash_paths:
+        try:
+            hash_offsets[hash_path] = hash_path.stat().st_size
+        except OSError:
+            hash_offsets[hash_path] = 0
+    if verbose and hash_paths:
+        for path in hash_paths:
+            print(c(f"[verbose] monitoring hash file: {path}", Color.CYAN))
+
     dashboard_lines: List[str] = render_live_dashboard(
         stats, crack_state, interface, responder_flags, start, auto_stop_seconds
     )
-    dashboard_height = draw_live_dashboard(dashboard_lines, previous_line_count=0)
+    dashboard_height = 0 if verbose else draw_live_dashboard(dashboard_lines, previous_line_count=0)
     auto_stop_triggered = False
     last_refresh = 0.0
     responder_stop_requested = False
@@ -695,6 +753,8 @@ def run_capture_and_crack(
                 responder_logs, log_offsets = refresh_responder_log_paths(
                     session_dir, responder_logs, log_offsets
                 )
+                poll_hash_files(stats, hash_offsets, hash_paths)
+                hash_paths, hash_offsets = refresh_hash_file_paths(session_dir, hash_paths, hash_offsets)
 
                 enqueue_new_hashes_for_cracking(stats, crack_state)
 
@@ -727,9 +787,21 @@ def run_capture_and_crack(
                     dashboard_lines = render_live_dashboard(
                         stats, crack_state, interface, responder_flags, start, auto_stop_seconds
                     )
-                    dashboard_height = draw_live_dashboard(
-                        dashboard_lines, previous_line_count=dashboard_height
-                    )
+                    if verbose:
+                        print(
+                            "[live] "
+                            f"t={int(now - start)}s "
+                            f"poisoned={stats.poisoned_responses} "
+                            f"auth={stats.captured_auth_events} "
+                            f"hashes={stats.ntlmv2_hash_lines} "
+                            f"users={len(stats.unique_users)} "
+                            f"queue={len(crack_state.pending_users) + (1 if crack_state.active_user else 0)} "
+                            f"cracked={len(crack_state.cracked_users.intersection({canonical_user(u) for u in stats.unique_users}))}"
+                        )
+                    else:
+                        dashboard_height = draw_live_dashboard(
+                            dashboard_lines, previous_line_count=dashboard_height
+                        )
                     last_refresh = now
 
                 if (
@@ -872,9 +944,6 @@ def main() -> int:
         verbose=parsed_args.verbose,
     )
     save_cracked_users(crack_state.cracked_users)
-
-    # Pull hashes from responder output files too, not just stdout.
-    read_hashes_from_files(session_dir, stats)
 
     print()
     render_stats(stats, live=False)
