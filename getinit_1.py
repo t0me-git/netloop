@@ -467,6 +467,23 @@ def start_next_hashcat_job(
     )
 
 
+def _ingest_cracked_stdout_line(line: str, crack_state: CrackState) -> None:
+    """Detect a cracked hash:password line from hashcat stdout."""
+    match = NTLMV2_IN_LINE_RE.search(line)
+    if not match:
+        return
+    after = line[match.end():]
+    if not after.startswith(":") or len(after) < 2:
+        return
+    if line in crack_state.cracked_seen:
+        return
+    crack_state.cracked_seen.add(line)
+    crack_state.cracked_lines.append(line)
+    cracked_user = match.group(1).split("::", 1)[0].strip()
+    if cracked_user:
+        crack_state.cracked_users.add(canonical_user(cracked_user))
+
+
 def poll_hashcat_state(crack_state: CrackState, verbose: bool = False) -> None:
     proc = crack_state.active_proc
     if proc is None or proc.stdout is None:
@@ -487,6 +504,7 @@ def poll_hashcat_state(crack_state: CrackState, verbose: bool = False) -> None:
         try:
             status_json = json.loads(clean)
         except json.JSONDecodeError:
+            _ingest_cracked_stdout_line(clean, crack_state)
             continue
         percent = parse_hashcat_progress(status_json)
         if percent is not None:
@@ -506,6 +524,7 @@ def finalize_hashcat_job(
     crack_state: CrackState,
     hashcat_path: str,
     hashcat_flags: List[str],
+    session_dir: Path,
     verbose: bool = False,
 ) -> None:
     proc = crack_state.active_proc
@@ -523,6 +542,7 @@ def finalize_hashcat_job(
             try:
                 status_json = json.loads(clean)
             except json.JSONDecodeError:
+                _ingest_cracked_stdout_line(clean, crack_state)
                 continue
             percent = parse_hashcat_progress(status_json)
             if percent is not None:
@@ -536,7 +556,8 @@ def finalize_hashcat_job(
     if rc != 0:
         crack_state.hashcat_errors += 1
 
-    show_cmd = [hashcat_path, *hashcat_flags, "--show", str(hash_file)]
+    potfile_path = str(session_dir / "netloop.potfile")
+    show_cmd = [hashcat_path, *hashcat_flags, "--potfile-path", potfile_path, "--show", str(hash_file)]
     show_proc = subprocess.run(show_cmd, text=True, capture_output=True)
     cracked_for_job = False
     for row in show_proc.stdout.splitlines():
@@ -807,7 +828,7 @@ def run_capture_and_crack(
                     poll_hashcat_state(crack_state, verbose=verbose)
                     if crack_state.active_proc and crack_state.active_proc.poll() is not None:
                         finalize_hashcat_job(
-                            crack_state, hashcat_path, parsed_hashcat_flags, verbose=verbose
+                            crack_state, hashcat_path, parsed_hashcat_flags, session_dir, verbose=verbose
                         )
                 else:
                     if not hashcat_missing_warned:
@@ -877,7 +898,7 @@ def run_capture_and_crack(
             proc.wait()
 
     if crack_state.active_proc and crack_state.active_proc.poll() is not None and hashcat_path:
-        finalize_hashcat_job(crack_state, hashcat_path, parsed_hashcat_flags, verbose=verbose)
+        finalize_hashcat_job(crack_state, hashcat_path, parsed_hashcat_flags, session_dir, verbose=verbose)
 
     print()
     if auto_stop_triggered:
