@@ -553,13 +553,13 @@ def finalize_hashcat_job(
                 crack_state.active_rate_hps = rate_hps
 
     rc = proc.wait()
-    if rc != 0:
+    # hashcat exit codes: 0=cracked, 1=exhausted (both normal).
+    if rc not in (0, 1):
         crack_state.hashcat_errors += 1
 
     potfile_path = str(session_dir / "netloop.potfile")
     show_cmd = [hashcat_path, *hashcat_flags, "--potfile-path", potfile_path, "--show", str(hash_file)]
     show_proc = subprocess.run(show_cmd, text=True, capture_output=True)
-    cracked_for_job = False
     for row in show_proc.stdout.splitlines():
         clean_row = strip_ansi(row).strip()
         if not clean_row:
@@ -568,11 +568,12 @@ def finalize_hashcat_job(
             continue
         crack_state.cracked_seen.add(clean_row)
         crack_state.cracked_lines.append(clean_row)
-        cracked_for_job = True
         if "::" in clean_row:
             cracked_user = clean_row.split("::", 1)[0].strip()
             if cracked_user:
                 crack_state.cracked_users.add(canonical_user(cracked_user))
+
+    cracked_for_job = canonical_user(user) in crack_state.cracked_users
 
     crack_state.completed_jobs += 1
     crack_state.processed_users.add(user)
@@ -585,12 +586,12 @@ def finalize_hashcat_job(
     crack_state.active_status = "idle"
     if crack_state.active_job_index is not None:
         job = crack_state.jobs[crack_state.active_job_index]
-        if rc != 0:
+        if rc not in (0, 1):
             job.status = f"error ({rc})"
         elif cracked_for_job:
-            job.status = "finished (cracked)"
+            job.status = "cracked"
         else:
-            job.status = "finished (not cracked)"
+            job.status = "exhausted"
         crack_state.last_completed_command = job.command
     crack_state.active_job_index = None
 
@@ -645,12 +646,16 @@ def render_live_dashboard(
     job_lines: List[str] = []
     if crack_state.jobs:
         for idx, job in enumerate(crack_state.jobs, start=1):
+            bar = build_progress_bar(job.percent)
+            rate_text = humanize_hps(job.rate_hps)
             if job.status == "running":
                 job_lines.append(
-                    f"  {idx}. {job.user} - in progress ({job.percent:5.2f}%, {humanize_hps(job.rate_hps)})"
+                    f"  {idx}. {job.user} - in progress {bar} | {rate_text}"
                 )
             else:
-                job_lines.append(f"  {idx}. {job.user} - {job.status}")
+                job_lines.append(
+                    f"  {idx}. {job.user} - {job.status} {bar} | {rate_text}"
+                )
     else:
         job_lines = ["  none yet"]
 
