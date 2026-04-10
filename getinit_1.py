@@ -165,6 +165,21 @@ def parse_hashcat_rate_hps(status_json: dict) -> Optional[float]:
                     found = True
         if found:
             return total
+
+    # Hashcat v6.2+ puts speed per-device inside the "devices" array.
+    devices = status_json.get("devices")
+    if isinstance(devices, list):
+        total = 0.0
+        found = False
+        for dev in devices:
+            if isinstance(dev, dict):
+                spd = dev.get("speed")
+                if isinstance(spd, (int, float)):
+                    total += float(spd)
+                    found = True
+        if found:
+            return total
+
     return None
 
 
@@ -712,14 +727,16 @@ def draw_live_dashboard(lines: List[str], previous_line_count: int) -> int:
 
     if previous_line_count > 0:
         sys.stdout.write(f"\033[{previous_line_count}A\r")
-        sys.stdout.flush()
+
+    # Wipe entire area below cursor FIRST so wrapped long lines
+    # don't leave residual characters from the previous render.
+    sys.stdout.write("\033[J")
 
     visual_rows = 0
     for line in lines:
-        sys.stdout.write("\033[2K" + line + "\n")
+        sys.stdout.write(line + "\n")
         visual_rows += _visible_line_rows(line, term_width)
 
-    sys.stdout.write("\033[J")
     sys.stdout.flush()
     return visual_rows
 
