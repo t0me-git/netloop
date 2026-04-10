@@ -127,6 +127,13 @@ def run_install(parsed_args: argparse.Namespace) -> int:
     if not _run_step("Install bloodhound-ce Python package", ["pip3", "install", "bloodhound-ce"]):
         failures.append("bloodhound-ce pip package")
 
+    if not _run_step(
+        "Refresh Kali archive keyring",
+        ["wget", "-q", "https://archive.kali.org/archive-keyring.gpg",
+         "-O", "/usr/share/keyrings/kali-archive-keyring.gpg"],
+    ):
+        failures.append("kali archive keyring")
+
     if not _run_step("Update apt package lists", ["apt", "update"]):
         failures.append("apt update")
 
