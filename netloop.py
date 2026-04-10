@@ -7,6 +7,7 @@ import argparse
 import sys
 
 import getinit_1
+import netloop_utils
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -14,16 +15,15 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
 
     getinit_1.configure_parser(sub)
-    # Future modules:
-    # import getinit_2
-    # getinit_2.configure_parser(sub)
+    netloop_utils.configure_parser(sub)
 
     return parser
 
 
 COMMAND_HANDLERS = {
     "ntlmv2": getinit_1.run,
-    # "future_cmd": getinit_2.run,
+    "reset": netloop_utils.run_reset,
+    "install": netloop_utils.run_install,
 }
 
 
