@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""getinit_1: NTLMv2 capture and crack module for netloop."""
+"""getinit_1: Legacy hostname resolution"""
 
 from __future__ import annotations
 

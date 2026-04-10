@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""adview_1: BloodHound CE collection triggered by cracked credentials."""
+"""adview_1: BHCE Support"""
 
 from __future__ import annotations
 
