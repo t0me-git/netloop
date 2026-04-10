@@ -463,6 +463,7 @@ def start_next_hashcat_job(
         stdin=subprocess.DEVNULL,
         text=True,
         bufsize=1,
+        start_new_session=True,
     )
 
 
@@ -664,23 +665,37 @@ def render_live_dashboard(
     return lines
 
 
+def _visible_line_rows(line: str, term_width: int) -> int:
+    """Return how many terminal rows a single logical line occupies after wrapping."""
+    visible_len = len(strip_ansi(line))
+    if visible_len <= term_width:
+        return 1
+    return (visible_len + term_width - 1) // term_width
+
+
 def draw_live_dashboard(lines: List[str], previous_line_count: int) -> int:
     if not supports_inplace_redraw():
-        print(" | ".join(line for line in lines if line.strip()))
-        return len(lines)
+        summary = " | ".join(line for line in lines if line.strip())
+        print(summary)
+        return 0
+
+    try:
+        term_width = os.get_terminal_size().columns
+    except OSError:
+        term_width = 80
 
     if previous_line_count > 0:
         sys.stdout.write(f"\033[{previous_line_count}A\r")
+        sys.stdout.flush()
 
+    visual_rows = 0
     for line in lines:
         sys.stdout.write("\033[2K" + line + "\n")
+        visual_rows += _visible_line_rows(line, term_width)
 
-    if previous_line_count > len(lines):
-        for _ in range(previous_line_count - len(lines)):
-            sys.stdout.write("\033[2K\n")
-
+    sys.stdout.write("\033[J")
     sys.stdout.flush()
-    return len(lines)
+    return visual_rows
 
 
 def run_capture_and_crack(
@@ -713,9 +728,11 @@ def run_capture_and_crack(
         cmd,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
+        stdin=subprocess.DEVNULL,
         text=True,
         cwd=str(session_dir),
         bufsize=1,
+        start_new_session=True,
     )
 
     start = time.time()
